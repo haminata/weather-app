@@ -1,4 +1,4 @@
-// import preact 
+// import preact
 import { h, render, Component } from 'preact';
 // import stylesheets for ipad & button
 import style from './style';
@@ -23,7 +23,7 @@ export default class Ipad extends Component {
 	// a call to fetch weather data via wunderground
 	fetchWeatherData = () => {
 		// API URL with a structure of : ttp://api.wunderground.com/api/key/feature/q/country-code/city.json
-		var url = "http://api.wunderground.com/api/c78f1a13d2ca6971/conditions/q/UK/London.json";
+		var url = "http://api.wunderground.com/api/4e55230d2a577a15/conditions/q/UK/London.json";
 		$.ajax({
 			url: url,
 			dataType: "jsonp",
@@ -68,6 +68,6 @@ export default class Ipad extends Component {
 			currentCountry: country,
 			temp: temp_c,
 			cond : conditions
-		});      
+		});
 	}
 }
