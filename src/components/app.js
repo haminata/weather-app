@@ -4,6 +4,7 @@ import { h, Component } from 'preact';
 // import required Components from 'components/'
 import Iphone from './iphone';
 import Ipad from './ipad';
+import { Link } from 'react-router-dom'
 
 export default class App extends Component {
 //var App = React.createClass({
@@ -28,15 +29,25 @@ export default class App extends Component {
 	render(){
 		if(this.state.isTablet){
 			return (
-				<div id="app">
-					<Ipad/ >
-				</div>   				
+				<div>
+					<nav>
+						<Link to="/dashboard" component={ () => 'Welcome!' }>Dashboard</Link>
+					</nav>
+					<div id="app">
+						<Ipad/ >
+					</div>
+				</div>
 			);
-		} 
+		}
 		else {
 			return (
+				<div>
+					<nav>
+						<Link to="/dashboard">Dashboard</Link>
+					</nav>
 				<div id="app">
 					<Iphone/ >
+				</div>
 				</div>
 			);
 		}

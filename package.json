@@ -75,9 +75,9 @@
   "dependencies": {
     "preact": "^6.0.0",
     "preact-compat": "^3.0.0",
-    "preact-router": "^2.0.0",
     "promise-polyfill": "^6.0.2",
     "proptypes": "^0.14.3",
+    "react-router-dom": "^4.2.2",
     "serve": "^2.0.0"
   },
   "main": "webpack.config.babel.js",
