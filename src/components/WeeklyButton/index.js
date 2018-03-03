@@ -1,7 +1,7 @@
 // import preact
 import { h, render, Component } from 'preact';
 
-export default class Button extends Component {
+export default class WeeklyButton extends Component {
 
 	// rendering a function when the button is clicked
 	render({clickFunction}) {
@@ -10,11 +10,10 @@ export default class Button extends Component {
 				console.log("passed something as 'clickFunction' that wasn't a function !");
 			}
 		}
-
 		return (
 			<div>
 				<button onClick={clickFunction}>
-					Display Weather
+					Weekly Temp
 				</button>
 			</div>
 		);
