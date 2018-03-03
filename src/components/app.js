@@ -4,6 +4,7 @@ import { h, Component } from 'preact';
 // import required Components from 'components/'
 import Iphone from './iphone';
 import Ipad from './ipad';
+import { Link } from 'react-router-dom'
 
 export default class App extends Component {
 //var App = React.createClass({
