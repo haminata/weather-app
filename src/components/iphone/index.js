@@ -1,5 +1,5 @@
 // import preact
-import { h, render, Component } from 'preact';
+import {h, render, Component} from 'preact';
 // import stylesheets for ipad & button
 import style from './style';
 import style_iphone from '../button/style_iphone';
@@ -13,74 +13,114 @@ import Button from '../button';
 import WeeklyButton from '../WeeklyButton';
 import HourlyButton from '../HourlyButton';
 import SearchButton from '../search';
+import _ from 'lodash';
+
+var DUMMY_WEEKLY_PATH = './assets/dummy_data/weekly.json'
+var DUMMY_HOURLY_PATH = './assets/dummy_data/hourly.json'
+var USE_DUMMY_DATA = false
 
 export default class Iphone extends Component {
 //var Iphone = React.createClass({
 
 	// a constructor with initial set states
-	constructor(props){
+	constructor(props) {
 		super(props);
 		// temperature state
 		this.state.temp = "";
+		this.state.data = {weekly: null, hourly: null} // initialise data
+		this.state.selectedCity = 'London'
+		this.state.apiKey = '4e55230d2a577a15'
 		// button display state
-		this.setState({ display: true });
+		this.setState({display: true})
 	}
 
-	componentDidMount(){
-		this.fetchWeatherData("London");
-		this.fetchWeekly("London");
-		this.fetchHourly("London");
-	//	this.fetchSearch();
+	fetchJson(url) {
+		return new Promise((resolve, reject) => {
+			$.ajax({
+				url: url,
+				dataType: "jsonp",
+				success: resolve,
+				error: reject
+			})
+		})
+	}
+
+	get urls(){
+		return {
+			hourly: `http://api.wunderground.com/api/${this.state.apiKey}/hourly/q/UK/${this.state.selectedCity}.json`,
+			weekly: `http://api.wunderground.com/api/${this.state.apiKey}/hourly10day/q/UK/${this.state.selectedCity}.json`,
+			condition: `http://api.wunderground.com/api/${this.state.apiKey}/conditions/q/UK/${this.state.selectedCity}.json`
+		}
+	}
+
+	componentDidMount() {
+
+		let fetchPromise
+		if(USE_DUMMY_DATA){
+			fetchPromise = Promise.all([this.fetchJson(DUMMY_HOURLY_PATH), this.fetchJson(DUMMY_WEEKLY_PATH)])
+				.then(([hourlyData, weeklyData]) => {
+					this.setState({data: {weekly: weeklyData, hourly: hourlyData}})
+
+					console.log('data fetched:', this.state)
+				})
+				.catch((error)=>{
+					console.log('error loading dummy data', error)
+				})
+		}else{
+			fetchPromise = Promise.resolve()
+		}
+
+		fetchPromise.then(() => {
+				this.updateWeatherAll()
+			})
+
+		//	this.fetchSearch();
+	}
+
+	updateWeatherAll(){
+		for(let readingType of Object.getOwnPropertyNames(this.urls)){
+			this.updateWeather(readingType)
+		}
+	}
+
+	updateWeather(readingType){
+		let url = this.urls[readingType]
+
+		let newState = {}
+		let callback
+
+		switch (readingType){
+			case 'weekly':
+				callback = this.parseResponseWeekly
+				newState.display1 = false
+				break;
+			case 'hourly':
+				callback = this.parseResponseHourly
+				newState.display2 = false
+				break;
+			case 'condition':
+				callback = this.parseResponseConditions
+				newState.display = false
+				break;
+			default:
+				throw 'Invalide weather reading ' + readingType
+		}
+
+		return this.fetchJson(url)
+			.then(callback)
+			.then(() => this.setState(newState))
 	}
 
 //called from onclick (on button)
 // pass serch value to this method as city
-  updateWeatherLocation(city){
+	updateWeatherLocation(city) {
 		console.log("CITY: " + city);
-	//this.fetchWeatherData(city);
-	//this.fetchHourly(city);
-	//this.fetchWeekly(city);
-	}
+		let searchUrl = "http://autocomplete.wunderground.com/aq?query=query"
+		//this.setState({display3: false});
 
-	// a call to fetch weather data via wunderground
-	fetchWeatherData = (city) => {
-		var url = "http://api.wunderground.com/api/4d597d0a0feea3ad/conditions/q/UK/" + city + ".json";
-		// API URL with a structure of : ttp://api.wunderground.com/api/key/feature/q/country-code/city.json
-		//var url = "http://api.wunderground.com/api/4d597d0a0feea3ad/conditions/q/UK/London.json";
-		$.ajax({
-			url: url,
-			dataType: "jsonp",
-			success : this.parseResponse,
-			error : function(req, err){ console.log('API call failed ' + err); }
-		})
-		// once the data grabbed, hide the button
-		this.setState({ display: false });
-	}
-
-	fetchWeekly = (city) => {
-		var url = "http://api.wunderground.com/api/4d597d0a0feea3ad/hourly10day/q/UK/" + city + ".json";
-		//var url = "http://api.wunderground.com/api/4d597d0a0feea3ad/hourly10day/q/UK/London.json";
-		$.ajax({
-			url: url,
-			dataType: "jsonp",
-			success : this.parseResponse1,
-			error : function(req, err){ console.log('API call failed ' + err); }
-		})
-		// once the data grabbed, hide the button
-		this.setState({ display1: false });
-	}
-
-	fetchHourly = (city) => {
-		var url = "http://api.wunderground.com/api/4d597d0a0feea3ad/hourly/q/UK/" + city + ".json";
-	//	var url = "http://api.wunderground.com/api/4d597d0a0feea3ad/hourly/q/UK/London.json";
-		$.ajax({
-			url: url,
-			dataType: "jsonp",
-			success : this.parseResponse2,
-			error : function(req, err){ console.log('API call failed ' + err); }
-		})
-		// once the data grabbed, hide the button
-		this.setState({ display2: false });
+		//this.fetchWeatherData(city);
+		//this.fetchHourly(city);
+		//this.fetchWeekly(city);
 	}
 
 	fetchSearch = () => {
@@ -88,13 +128,40 @@ export default class Iphone extends Component {
 		$.ajax({
 			url: url,
 			dataType: "jsonp",
-			success : this.parseResponse3,
-			error : function(req, err){ console.log('API call failed ' + err); }
+			success: this.parseResponseSearch,
+			error: function (req, err) {
+				console.log('API call failed ' + err);
+			}
 		})
 		// once the data grabbed, hide the button
-		this.setState({ display3: false });
+
 	}
 
+	onSearch(event){
+		event.preventDefault()
+
+		let city = document.querySelector('#searchInput').value
+		let conditionsUrl = "http://api.wunderground.com/api/4e55230d2a577a15/conditions/q/UK/" + city + ".json"
+
+		this.fetchJson(conditionsUrl)
+			.then((response) => {
+				console.log('Data from Underground:', response, _.isArray(response.response.results))
+
+				if(_.isArray(response.response.results)){
+
+					let results = response.response.results
+					let newUrl = `http://api.wunderground.com/api/4e55230d2a577a15/conditions${_.first(results).l}.json`
+					console.log('New URL:', newUrl)
+					return this.fetchJson(newUrl)
+				}else{
+					return response
+				}
+			})
+			.then(this.parseResponseConditions)
+			.then(() => {
+				this.setState({selectedCity: city})
+			})
+	}
 
 	// the main render method for the iphone component
 
@@ -138,7 +205,7 @@ export default class Iphone extends Component {
 					<span class={ htemp4Styles }>{ this.state.hrtemp4}</span>
 					<span class={ htemp5Styles }>{ this.state.hrtemp5}</span>
 					<span class={ htemp6Styles }>{ this.state.hrtemp6}</span>
-					<div class= {style.icon} ><img src={ic} alt={this.state.icon1}></img></div>
+					<div class={style.icon}><img src={ic} alt={this.state.icon1}></img></div>
 					<div class={ style.day1 }>{ this.state.dy1 }</div>
 					<div class={ style.day2 }>{ this.state.dy2 }</div>
 					<div class={ style.day3 }>{ this.state.dy3 }</div>
@@ -156,80 +223,93 @@ export default class Iphone extends Component {
 					<div class={ style.hline2 }></div>
 
 					<div>
-					<form>
-					<input id = "searchInput" type="text" size="50" placeholder="Search City" required></input>
-					<button onclick="updateWeatherLocation()">Search</button>
-					</form>
+						<form onsubmit={this.onSearch.bind(this)}>
+							<input id="searchInput" type="text" size="50" value={this.state.selectedCity} placeholder="Search City" required></input>
+							<button onclick="updateWeatherLocation()">Search</button>
+						</form>
 					</div>
 
 
-
-					</div>
-					<div class={ style.details }></div>
-					<div class= { style_iphone.container }>
-					{ this.state.display ? <Button class={ style_iphone.button } clickFunction={ this.fetchWeatherData }/ > : null }
-					</div>
-					<div class= { style_iphone1.container1 }>
-					{ this.state.display1 ? <WeeklyButton class={ style_iphone1.WeeklyButton} clickFunction={ this.fetchWeekly }/ > : null }
-					</div>
-					<div class = { style_iphone3.container3 }>
-					{ this.state.display2 ? <HourlyButton class={ style_iphone3.HourlyButton} clickFunction={ this.fetchHourly }/ > : null }
-					</div>
-					<div class = { style_iphone2.container2 }>
-					{ this.state.display3 ? <SearchButton class={ style_iphone2.SearchButton} clickFunction={ this.fetchSearch }/ > : null }
-					</div>
 				</div>
+				<div class={ style.details }></div>
+				<div class={ style_iphone.container }>
+					{ this.state.display ?
+						<Button class={ style_iphone.button } clickFunction={ this.fetchWeatherData }/> : null }
+				</div>
+				<div class={ style_iphone1.container1 }>
+					{ this.state.display1 ?
+						<WeeklyButton class={ style_iphone1.WeeklyButton} clickFunction={ () => this.updateWeather('weekly') }/> : null }
+				</div>
+				<div class={ style_iphone3.container3 }>
+					{ this.state.display2 ?
+						<HourlyButton class={ style_iphone3.HourlyButton} clickFunction={ () => this.updateWeather('hourly') }/> : null }
+				</div>
+				<div class={ style_iphone2.container2 }>
+					{ this.state.display3 ?
+						<SearchButton class={ style_iphone2.SearchButton} clickFunction={ this.fetchSearch }/> : null }
+				</div>
+			</div>
 		);
 	}
 
-	parseResponse = (parsed_json) => {
+	parseResponseConditions = (parsed_json) => {
+
 		var location = parsed_json['current_observation']['display_location']['city'];
 		var temp_c = parsed_json['current_observation']['temp_c'];
 		var conditions = parsed_json['current_observation']['weather'];
 		var feelslike_c = parsed_json['current_observation']['feelslike_c'];
 		var icon = parsed_json['current_observation']['icon'];
 
+		console.log('Icon:', icon)
+
 		// set states for fields so they could be rendered later on
 		this.setState({
-			locate : location,
-			temp : temp_c,
-			cond : conditions,
-			feel : feelslike_c,
-			icon1 : icon
+			locate: location,
+			temp: temp_c,
+			cond: conditions,
+			feel: feelslike_c,
+			icon1: icon
 		});
 	}
 
-	parseResponse1 = (parsed_json1) => {
+	parseResponseWeekly = (parsed_json1) => {
+
 		var day1 = parsed_json1['hourly_forecast'][24]['FCTTIME']['weekday_name_abbrev'];
 		var temp1 = parsed_json1['hourly_forecast'][24]['temp'].metric;
+
 		var day2 = parsed_json1['hourly_forecast'][48]['FCTTIME']['weekday_name_abbrev'];
 		var temp2 = parsed_json1['hourly_forecast'][48]['temp'].metric;
+
 		var day3 = parsed_json1['hourly_forecast'][72]['FCTTIME']['weekday_name_abbrev'];
 		var temp3 = parsed_json1['hourly_forecast'][72]['temp'].metric;
+
 		var day4 = parsed_json1['hourly_forecast'][96]['FCTTIME']['weekday_name_abbrev'];
 		var temp4 = parsed_json1['hourly_forecast'][96]['temp'].metric;
+
 		var day5 = parsed_json1['hourly_forecast'][120]['FCTTIME']['weekday_name_abbrev'];
 		var temp5 = parsed_json1['hourly_forecast'][120]['temp'].metric;
+
 		var day6 = parsed_json1['hourly_forecast'][144]['FCTTIME']['weekday_name_abbrev'];
 		var temp6 = parsed_json1['hourly_forecast'][144]['temp'].metric;
 
 		this.setState({
-			dy1 : day1,
-			tmp1 : temp1,
-			dy2 : day2,
-			tmp2 : temp2,
-			dy3 : day3,
-			tmp3 : temp3,
-			dy4 : day4,
-			tmp4 : temp4,
-			dy5 : day5,
-			tmp5 : temp5,
-			dy6 : day6,
-			tmp6 : temp6,
+			dy1: day1,
+			tmp1: temp1,
+			dy2: day2,
+			tmp2: temp2,
+			dy3: day3,
+			tmp3: temp3,
+			dy4: day4,
+			tmp4: temp4,
+			dy5: day5,
+			tmp5: temp5,
+			dy6: day6,
+			tmp6: temp6,
 		});
 	}
 
-	parseResponse2 = (parsed_json2) => {
+	parseResponseHourly = (parsed_json2) => {
+
 		var hour1 = parsed_json2['hourly_forecast'][0]['FCTTIME']['hour'];
 		var htemp1 = parsed_json2['hourly_forecast'][0]['temp'].metric;
 		var hour2 = parsed_json2['hourly_forecast'][1]['FCTTIME']['hour'];
@@ -244,26 +324,24 @@ export default class Iphone extends Component {
 		var htemp6 = parsed_json2['hourly_forecast'][5]['temp'].metric;
 
 		this.setState({
-			 hr1 : hour1,
-			 hrtemp1 : htemp1,
-			 hr2 : hour2,
-			 hrtemp2 : htemp2,
-			 hr3 : hour3,
-			 hrtemp3 : htemp3,
-			 hr4 : hour4,
-			 hrtemp4 : htemp4,
-			 hr5 : hour5,
-			 hrtemp5 : htemp5,
-			 hr6 : hour6,
-			 hrtemp6 : htemp6,
+			hr1: hour1,
+			hrtemp1: htemp1,
+			hr2: hour2,
+			hrtemp2: htemp2,
+			hr3: hour3,
+			hrtemp3: htemp3,
+			hr4: hour4,
+			hrtemp4: htemp4,
+			hr5: hour5,
+			hrtemp5: htemp5,
+			hr6: hour6,
+			hrtemp6: htemp6,
 		});
 	}
 
-	parseResponse3 = (parsed_json3) => {
+	parseResponseSearch = (parsed_json3) => {
 
-		this.setState({
-
-		});
+		this.setState({});
 	}
 
 }
