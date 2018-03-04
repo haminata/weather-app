@@ -1,3 +1,4 @@
+/* eslint-disable semi */
 // import preact
 import {h, render, Component} from 'preact';
 // import stylesheets for ipad & button
@@ -136,9 +137,9 @@ export default class Iphone extends Component {
 		// once the data grabbed, hide the button
 
 	}
-
+	// tells the browser to stay on the same page
 	onSearch(event){
-		event.preventDefault()
+		event.preventDefault() //a form has the behavior to take you on new page - prevents it
 
 		let city = document.querySelector('#searchInput').value
 		let conditionsUrl = "http://api.wunderground.com/api/4e55230d2a577a15/conditions/q/UK/" + city + ".json"
@@ -223,6 +224,7 @@ export default class Iphone extends Component {
 					<div class={ style.hline2 }></div>
 
 					<div>
+
 						<form onsubmit={this.onSearch.bind(this)}>
 							<input id="searchInput" type="text" size="50" value={this.state.selectedCity} placeholder="Search City" required></input>
 							<button onclick="updateWeatherLocation()">Search</button>
