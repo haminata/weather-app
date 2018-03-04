@@ -35,6 +35,7 @@ export default class Iphone extends Component {
 	}
 
 	fetchJson(url) {
+		console.log('[fetchJson] url=' + url)
 		return new Promise((resolve, reject) => {
 			$.ajax({
 				url: url,
@@ -48,8 +49,8 @@ export default class Iphone extends Component {
 	get urls(){
 		return {
 			hourly: `http://api.wunderground.com/api/${this.state.apiKey}/hourly/q/UK/${this.state.selectedCity}.json`,
-			weekly: `http://api.wunderground.com/api/${this.state.apiKey}/hourly10day/q/UK/${this.state.selectedCity}.json`,
-			condition: `http://api.wunderground.com/api/${this.state.apiKey}/conditions/q/UK/${this.state.selectedCity}.json`
+			hourly10day: `http://api.wunderground.com/api/${this.state.apiKey}/hourly10day/q/UK/${this.state.selectedCity}.json`,
+			conditions: `http://api.wunderground.com/api/${this.state.apiKey}/conditions/q/UK/${this.state.selectedCity}.json`
 		}
 	}
 
@@ -90,23 +91,37 @@ export default class Iphone extends Component {
 		let callback
 
 		switch (readingType){
-			case 'weekly':
-				callback = this.parseResponseWeekly
-				newState.display1 = false
-				break;
 			case 'hourly':
 				callback = this.parseResponseHourly
 				newState.display2 = false
 				break;
-			case 'condition':
+			case 'hourly10day':
+				callback = this.parseResponseWeekly
+				newState.display1 = false
+				break;
+			case 'conditions':
 				callback = this.parseResponseConditions
 				newState.display = false
 				break;
 			default:
-				throw 'Invalide weather reading ' + readingType
+				throw 'Invalid weather reading ' + readingType
 		}
 
 		return this.fetchJson(url)
+			.then(response => {
+				if (_.isArray(response.response.results)) {
+
+					let queryLocation = _.first(response.response.results).l
+					let queryIndex = url.indexOf('/q/')
+					let newUrl = `${url.slice(0, queryIndex)}${queryLocation}.json`
+					let numberOfResults = response.response.results.length
+
+					console.warn(`[updateWeather] city "${this.state.selectedCity}" is ambiguous and returned ${numberOfResults} results; defaulting to first result: `, newUrl)
+					return this.fetchJson(newUrl)
+				} else {
+					return response
+				}
+			})
 			.then(callback)
 			.then(() => this.setState(newState))
 	}
@@ -136,30 +151,25 @@ export default class Iphone extends Component {
 		// once the data grabbed, hide the button
 
 	}
+
+	get weatherReadingTypes() {
+		return Object.keys(this.urls)
+	}
+
 	// tells the browser to stay on the same page
-	onSearch(event){
+	onSearch(event) {
 		event.preventDefault() //a form has the behavior to take you on new page - prevents it
 
+		let currentSelectedCity = this.state.selectedCity
 		let city = document.querySelector('#searchInput').value
-		let conditionsUrl = "http://api.wunderground.com/api/4e55230d2a577a15/conditions/q/UK/" + city + ".json"
+		this.setState({selectedCity: city})
 
-		this.fetchJson(conditionsUrl)
-			.then((response) => {
-				console.log('Data from Underground:', response, _.isArray(response.response.results))
+		let readingsUpdated = _.forEach(this.weatherReadingTypes, (readingType) => this.updateWeather(readingType))
 
-				if(_.isArray(response.response.results)){
-
-					let results = response.response.results
-					let newUrl = `http://api.wunderground.com/api/4e55230d2a577a15/conditions${_.first(results).l}.json`
-					console.log('New URL:', newUrl)
-					return this.fetchJson(newUrl)
-				}else{
-					return response
-				}
-			})
-			.then(this.parseResponseConditions)
-			.then(() => {
-				this.setState({selectedCity: city})
+		return Promise.all(readingsUpdated)
+			.catch((error) => {
+				console.log(`[onSearch] error updating city to ${this.state.selectedCity}:`, error)
+				this.setState({selectedCity: currentSelectedCity}) // revert the change to city state if an error occured
 			})
 	}
 
