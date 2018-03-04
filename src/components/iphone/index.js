@@ -183,7 +183,19 @@ export default class Iphone extends Component {
 		const htemp6Styles = this.state.hrtemp6 ? `${style.htemp6} ${style.filled2}` : style.htemp6;
 
 		var ic = "https://icons.wxug.com/i/c/k/" + this.state.icon1 + ".gif";
-		console.log("IC2 " + ic);
+		var ic1 = "https://icons.wxug.com/i/c/k/" + this.state.icA1 + ".gif";
+		var ic2 = "https://icons.wxug.com/i/c/k/" + this.state.icA2 + ".gif";
+		var ic3 = "https://icons.wxug.com/i/c/k/" + this.state.icA3 + ".gif";
+		var ic4 = "https://icons.wxug.com/i/c/k/" + this.state.icA4 + ".gif";
+		var ic5 = "https://icons.wxug.com/i/c/k/" + this.state.icA5 + ".gif";
+		var ic6 = "https://icons.wxug.com/i/c/k/" + this.state.icA6 + ".gif";
+
+		var ic01 = "https://icons.wxug.com/i/c/k/" + this.state.icB1 + ".gif";
+		var ic02 = "https://icons.wxug.com/i/c/k/" + this.state.icB2 + ".gif";
+		var ic03 = "https://icons.wxug.com/i/c/k/" + this.state.icB3 + ".gif";
+		var ic04 = "https://icons.wxug.com/i/c/k/" + this.state.icB4 + ".gif";
+		var ic05 = "https://icons.wxug.com/i/c/k/" + this.state.icB5 + ".gif";
+		var ic06 = "https://icons.wxug.com/i/c/k/" + this.state.icB6 + ".gif";
 		// display all weather data
 		return (
 			<div class={ style.container }>
@@ -206,6 +218,19 @@ export default class Iphone extends Component {
 					<span class={ htemp5Styles }>{ this.state.hrtemp5}</span>
 					<span class={ htemp6Styles }>{ this.state.hrtemp6}</span>
 					<div class={style.icon}><img src={ic} alt={this.state.icon1}></img></div>
+					<div class= {style.iconA1}><img src={ic1} alt={this.state.icA1}></img></div>
+					<div class= {style.iconA2}><img src={ic2} alt={this.state.icA2}></img></div>
+					<div class= {style.iconA3}><img src={ic3} alt={this.state.icA3}></img></div>
+					<div class= {style.iconA4}><img src={ic4} alt={this.state.icA4}></img></div>
+					<div class= {style.iconA5}><img src={ic5} alt={this.state.icA5}></img></div>
+					<div class= {style.iconA6}><img src={ic5} alt={this.state.icA6}></img></div>
+
+					<div class= {style.iconB1}><img src={ic01} alt={this.state.icB1}></img></div>
+					<div class= {style.iconB2}><img src={ic02} alt={this.state.icB2}></img></div>
+					<div class= {style.iconB3}><img src={ic03} alt={this.state.icB3}></img></div>
+					<div class= {style.iconB4}><img src={ic04} alt={this.state.icB4}></img></div>
+					<div class= {style.iconB5}><img src={ic05} alt={this.state.icB5}></img></div>
+					<div class= {style.iconB6}><img src={ic06} alt={this.state.icB6}></img></div>
 					<div class={ style.day1 }>{ this.state.dy1 }</div>
 					<div class={ style.day2 }>{ this.state.dy2 }</div>
 					<div class={ style.day3 }>{ this.state.dy3 }</div>
@@ -274,69 +299,87 @@ export default class Iphone extends Component {
 	}
 
 	parseResponseWeekly = (parsed_json1) => {
+			var day1 = parsed_json1['hourly_forecast'][24]['FCTTIME']['weekday_name_abbrev'];
+			var temp1 = parsed_json1['hourly_forecast'][24]['temp'].metric;
+			var iconA1 = parsed_json1['hourly_forecast'][24]['icon'];
+			var day2 = parsed_json1['hourly_forecast'][48]['FCTTIME']['weekday_name_abbrev'];
+			var temp2 = parsed_json1['hourly_forecast'][48]['temp'].metric;
+			var iconA2 = parsed_json1['hourly_forecast'][48]['icon'];
+			var day3 = parsed_json1['hourly_forecast'][72]['FCTTIME']['weekday_name_abbrev'];
+			var temp3 = parsed_json1['hourly_forecast'][72]['temp'].metric;
+			var iconA3 = parsed_json1['hourly_forecast'][72]['icon'];
+			var day4 = parsed_json1['hourly_forecast'][96]['FCTTIME']['weekday_name_abbrev'];
+			var temp4 = parsed_json1['hourly_forecast'][96]['temp'].metric;
+			var iconA4 = parsed_json1['hourly_forecast'][96]['icon'];
+			var day5 = parsed_json1['hourly_forecast'][120]['FCTTIME']['weekday_name_abbrev'];
+			var temp5 = parsed_json1['hourly_forecast'][120]['temp'].metric;
+			var iconA5 = parsed_json1['hourly_forecast'][120]['icon'];
+			var day6 = parsed_json1['hourly_forecast'][144]['FCTTIME']['weekday_name_abbrev'];
+			var temp6 = parsed_json1['hourly_forecast'][144]['temp'].metric;
+			var iconA6 = parsed_json1['hourly_forecast'][144]['icon'];
 
-		var day1 = parsed_json1['hourly_forecast'][24]['FCTTIME']['weekday_name_abbrev'];
-		var temp1 = parsed_json1['hourly_forecast'][24]['temp'].metric;
-
-		var day2 = parsed_json1['hourly_forecast'][48]['FCTTIME']['weekday_name_abbrev'];
-		var temp2 = parsed_json1['hourly_forecast'][48]['temp'].metric;
-
-		var day3 = parsed_json1['hourly_forecast'][72]['FCTTIME']['weekday_name_abbrev'];
-		var temp3 = parsed_json1['hourly_forecast'][72]['temp'].metric;
-
-		var day4 = parsed_json1['hourly_forecast'][96]['FCTTIME']['weekday_name_abbrev'];
-		var temp4 = parsed_json1['hourly_forecast'][96]['temp'].metric;
-
-		var day5 = parsed_json1['hourly_forecast'][120]['FCTTIME']['weekday_name_abbrev'];
-		var temp5 = parsed_json1['hourly_forecast'][120]['temp'].metric;
-
-		var day6 = parsed_json1['hourly_forecast'][144]['FCTTIME']['weekday_name_abbrev'];
-		var temp6 = parsed_json1['hourly_forecast'][144]['temp'].metric;
-
-		this.setState({
-			dy1: day1,
-			tmp1: temp1,
-			dy2: day2,
-			tmp2: temp2,
-			dy3: day3,
-			tmp3: temp3,
-			dy4: day4,
-			tmp4: temp4,
-			dy5: day5,
-			tmp5: temp5,
-			dy6: day6,
-			tmp6: temp6,
-		});
-	}
+			this.setState({
+				dy1 : day1,
+				tmp1 : temp1,
+				icA1 : iconA1,
+				dy2 : day2,
+				tmp2 : temp2,
+				icA2 : iconA2,
+				dy3 : day3,
+				tmp3 : temp3,
+				icA3 : iconA3,
+				dy4 : day4,
+				tmp4 : temp4,
+				icA4 : iconA4,
+				dy5 : day5,
+				tmp5 : temp5,
+				icA5 : iconA5,
+				dy6 : day6,
+				tmp6 : temp6,
+				icA6 : iconA6,
+			});
+		}
 
 	parseResponseHourly = (parsed_json2) => {
 
 		var hour1 = parsed_json2['hourly_forecast'][0]['FCTTIME']['hour'];
 		var htemp1 = parsed_json2['hourly_forecast'][0]['temp'].metric;
+		var iconB1 = parsed_json2['hourly_forecast'][0]['icon'];
 		var hour2 = parsed_json2['hourly_forecast'][1]['FCTTIME']['hour'];
 		var htemp2 = parsed_json2['hourly_forecast'][1]['temp'].metric;
+		var iconB2 = parsed_json2['hourly_forecast'][1]['icon'];
 		var hour3 = parsed_json2['hourly_forecast'][2]['FCTTIME']['hour'];
 		var htemp3 = parsed_json2['hourly_forecast'][2]['temp'].metric;
+		var iconB3 = parsed_json2['hourly_forecast'][2]['icon'];
 		var hour4 = parsed_json2['hourly_forecast'][3]['FCTTIME']['hour'];
 		var htemp4 = parsed_json2['hourly_forecast'][3]['temp'].metric;
+		var iconB4 = parsed_json2['hourly_forecast'][3]['icon'];
 		var hour5 = parsed_json2['hourly_forecast'][4]['FCTTIME']['hour'];
 		var htemp5 = parsed_json2['hourly_forecast'][4]['temp'].metric;
+		var iconB5 = parsed_json2['hourly_forecast'][4]['icon'];
 		var hour6 = parsed_json2['hourly_forecast'][5]['FCTTIME']['hour'];
 		var htemp6 = parsed_json2['hourly_forecast'][5]['temp'].metric;
+		var iconB6 = parsed_json2['hourly_forecast'][5]['icon'];
 
 		this.setState({
-			hr1: hour1,
-			hrtemp1: htemp1,
-			hr2: hour2,
-			hrtemp2: htemp2,
-			hr3: hour3,
-			hrtemp3: htemp3,
-			hr4: hour4,
-			hrtemp4: htemp4,
-			hr5: hour5,
-			hrtemp5: htemp5,
-			hr6: hour6,
-			hrtemp6: htemp6,
+			 hr1 : hour1,
+			 hrtemp1 : htemp1,
+			 icB1 : iconB1,
+			 hr2 : hour2,
+			 hrtemp2 : htemp2,
+			 icB2 : iconB2,
+			 hr3 : hour3,
+			 hrtemp3 : htemp3,
+			 icB3 : iconB3,
+			 hr4 : hour4,
+			 hrtemp4 : htemp4,
+			 icB4 : iconB4,
+			 hr5 : hour5,
+			 hrtemp5 : htemp5,
+			 icB5 : iconB5,
+			 hr6 : hour6,
+			 hrtemp6 : htemp6,
+			 icB6 : iconB6,
 		});
 	}
 
