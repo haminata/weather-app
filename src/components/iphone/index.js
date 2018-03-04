@@ -21,7 +21,6 @@ var DUMMY_HOURLY_PATH = './assets/dummy_data/hourly.json'
 var USE_DUMMY_DATA = false
 
 export default class Iphone extends Component {
-//var Iphone = React.createClass({
 
 	// a constructor with initial set states
 	constructor(props) {
