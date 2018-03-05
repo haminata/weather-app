@@ -128,7 +128,7 @@ module.exports = {
 				negate_iife: false
 			}
 		}),
-		
+
 		// strip out babel-helper invariant checks
 		new ReplacePlugin([{
 			// this is actually the property name https://github.com/kimhou/replace-bundle-webpack-plugin/issues/1
@@ -161,11 +161,12 @@ module.exports = {
 
 	devServer: {
 		port: process.env.PORT || 8080,
-		host: 'localhost',
+		host: '0.0.0.0',
 		colors: true,
 		publicPath: '/',
 		contentBase: './src',
 		historyApiFallback: true,
+		disableHostCheck: true,
 		open: true,
 		proxy: {
 			// OPTIONAL: proxy configuration:

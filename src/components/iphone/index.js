@@ -15,6 +15,7 @@ import WeeklyButton from '../WeeklyButton';
 import HourlyButton from '../HourlyButton';
 import SearchButton from '../search';
 import _ from 'lodash';
+import LocationChooser from "../LocationChooser";
 
 var DUMMY_WEEKLY_PATH = './assets/dummy_data/weekly.json'
 var DUMMY_HOURLY_PATH = './assets/dummy_data/hourly.json'
@@ -30,6 +31,7 @@ export default class Iphone extends Component {
 		this.state.data = {weekly: null, hourly: null} // initialise data
 		this.state.selectedCity = 'London'
 		this.state.apiKey = '4e55230d2a577a15'
+		this.state.locationChooserVisible = false
 		// button display state
 		this.setState({display: true})
 	}
@@ -173,6 +175,11 @@ export default class Iphone extends Component {
 			})
 	}
 
+	onAddLocation(event){
+		console.log('add location')
+		this.setState({locationChooserVisible: true})
+	}
+
 	// the main render method for the iphone component
 
 	render() {
@@ -258,12 +265,15 @@ export default class Iphone extends Component {
 					<div class={ style.hline2 }></div>
 
 					<div>
-
 						<form onsubmit={this.onSearch.bind(this)}>
 							<input id="searchInput" type="text" size="50" value={this.state.selectedCity} placeholder="Search City" required></input>
 							<button onclick="updateWeatherLocation()">Search</button>
 						</form>
-					</div>
+
+						<button class={ style['btn-add-location'] } onclick={this.onAddLocation.bind(this)}>
+							<img src="https://png.icons8.com/ios/50/000000/plus.png" />
+						</button>
+						</div>
 
 
 				</div>
@@ -284,6 +294,10 @@ export default class Iphone extends Component {
 					{ this.state.display3 ?
 						<SearchButton class={ style_iphone2.SearchButton} clickFunction={ this.fetchSearch }/> : null }
 				</div>
+
+
+				{ this.state.locationChooserVisible ?
+					<LocationChooser selectedCity={this.state.selectedCity}/>: null }
 			</div>
 		);
 	}
