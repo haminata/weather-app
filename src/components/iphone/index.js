@@ -28,10 +28,10 @@ export default class Iphone extends Component {
 		super(props);
 		// temperature state
 		this.state.temp = "";
-		this.state.data = {weekly: null, hourly: null} // initialise data
-		this.state.selectedCity = 'London'
-		this.state.apiKey = '4e55230d2a577a15'
-		this.state.locationChooserVisible = false
+		this.state.data = {weekly: null, hourly: null}; // initialise data
+		this.state.selectedCity = 'London';
+		this.state.apiKey = '9436449a823b2d05';
+		this.state.locationChooserVisible = false;
 		// button display state
 		this.setState({display: true})
 	}
@@ -160,6 +160,7 @@ export default class Iphone extends Component {
 
 	// tells the browser to stay on the same page
 	onSearch(event) {
+		this.setState({locationChooserVisible: false});
 		event.preventDefault() //a form has the behavior to take you on new page - prevents it
 
 		let currentSelectedCity = this.state.selectedCity
@@ -177,7 +178,8 @@ export default class Iphone extends Component {
 
 	onAddLocation(event){
 		console.log('add location')
-		this.setState({locationChooserVisible: true})
+		this.setState({locationChooserVisible: true});
+		//console.log("VAR: " + this.state.locationChooserVisible);
 	}
 
 	// the main render method for the iphone component
@@ -213,9 +215,13 @@ export default class Iphone extends Component {
 		var ic04 = "https://icons.wxug.com/i/c/k/" + this.state.icB4 + ".gif";
 		var ic05 = "https://icons.wxug.com/i/c/k/" + this.state.icB5 + ".gif";
 		var ic06 = "https://icons.wxug.com/i/c/k/" + this.state.icB6 + ".gif";
+
+		console.log("VAR: " + this.state.locationChooserVisible);
 		// display all weather data
 		return (
 			<div class={ style.container }>
+			{ !(this.state.locationChooserVisible) ?
+				<div>
 				<div class={ style.header }> UniSky
 					<div class={ style.city }>{ this.state.locate }</div>
 					<div class={ style.conditions }>{ this.state.cond }</div>
@@ -265,14 +271,12 @@ export default class Iphone extends Component {
 					<div class={ style.hline2 }></div>
 
 					<div>
-						<form onsubmit={this.onSearch.bind(this)}>
-							<input id="searchInput" type="text" size="50" value={this.state.selectedCity} placeholder="Search City" required></input>
-							<button onclick="updateWeatherLocation()">Search</button>
-						</form>
+
 
 						<button class={ style['btn-add-location'] } onclick={this.onAddLocation.bind(this)}>
 							<img src="https://png.icons8.com/ios/50/000000/plus.png" />
 						</button>
+
 						</div>
 
 
@@ -294,10 +298,17 @@ export default class Iphone extends Component {
 					{ this.state.display3 ?
 						<SearchButton class={ style_iphone2.SearchButton} clickFunction={ this.fetchSearch }/> : null }
 				</div>
+				</div>
+:
 
+<div>
+<form onsubmit={this.onSearch.bind(this)}>
+	<input id="searchInput" type="text" size="50" value={this.state.selectedCity} placeholder="Search City" required></input>
+	<button onclick="updateWeatherLocation()">Search</button>
+</form>
 
-				{ this.state.locationChooserVisible ?
-					<LocationChooser selectedCity={this.state.selectedCity}/>: null }
+</div>
+ }
 			</div>
 		);
 	}
