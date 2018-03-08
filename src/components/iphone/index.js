@@ -240,7 +240,7 @@ export default class Iphone extends Component {
 
 					<div>
 						<button class={ style['btn-add-location'] } onclick={this.onAddLocation.bind(this)}>
-							<img src="https://png.icons8.com/ios/50/000000/plus.png" />
+							<img src="../../assets/icons/plus.png" />
 						</button>
 					</div>
 
@@ -248,7 +248,7 @@ export default class Iphone extends Component {
 				<div class={ style.details }></div>
 				<div class={ style_iphone.container }>
 					{ this.state.display ?
-						<Button class={ style_iphone.button } clickFunction={ this.fetchWeatherData }/> : null }
+						<Button class={ style_iphone.button } clickFunction={ this.updateWeather('conditions') }/> : null }
 				</div>
 				<div class={ style_iphone1.container1 }>
 					{ this.state.display1 ?
