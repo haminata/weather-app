@@ -6,14 +6,12 @@ import style from './style';
 import style_iphone from '../button/style_iphone';
 import style_iphone1 from '../WeeklyButton/style_iphone1';
 import style_iphone3 from '../HourlyButton/style_iphone3';
-import style_iphone2 from '../search/style_iphone2';
 // import jquery for API calls
 import $ from 'jquery';
 // import the Button component
 import Button from '../button';
 import WeeklyButton from '../WeeklyButton';
 import HourlyButton from '../HourlyButton';
-import SearchButton from '../search';
 import _ from 'lodash';
 import LocationChooser from "../LocationChooser";
 
@@ -57,7 +55,6 @@ export default class Iphone extends Component {
 	}
 
 	componentDidMount() {
-
 		let fetchPromise
 		if(USE_DUMMY_DATA){
 			fetchPromise = Promise.all([this.fetchJson(DUMMY_HOURLY_PATH), this.fetchJson(DUMMY_WEEKLY_PATH)])
@@ -72,12 +69,9 @@ export default class Iphone extends Component {
 		}else{
 			fetchPromise = Promise.resolve()
 		}
-
 		fetchPromise.then(() => {
 				this.updateWeatherAll()
 			})
-
-		//	this.fetchSearch();
 	}
 
 	updateWeatherAll(){
@@ -126,33 +120,7 @@ export default class Iphone extends Component {
 			})
 			.then(callback)
 			.then(() => this.setState(newState))
-	}
-
-//called from onclick (on button)
-// pass serch value to this method as city
-	updateWeatherLocation(city) {
-		console.log("CITY: " + city);
-		let searchUrl = "http://autocomplete.wunderground.com/aq?query=query"
-		//this.setState({display3: false});
-
-		//this.fetchWeatherData(city);
-		//this.fetchHourly(city);
-		//this.fetchWeekly(city);
-	}
-
-	fetchSearch = () => {
-		var url = "http://autocomplete.wunderground.com/aq?query=query";
-		$.ajax({
-			url: url,
-			dataType: "jsonp",
-			success: this.parseResponseSearch,
-			error: function (req, err) {
-				console.log('API call failed ' + err);
-			}
-		})
-		// once the data grabbed, hide the button
-
-	}
+		}
 
 	get weatherReadingTypes() {
 		return Object.keys(this.urls)
@@ -179,13 +147,11 @@ export default class Iphone extends Component {
 	onAddLocation(event){
 		console.log('add location')
 		this.setState({locationChooserVisible: true});
-		//console.log("VAR: " + this.state.locationChooserVisible);
 	}
 
 	// the main render method for the iphone component
-
 	render() {
-		// check if temperature data is fetched, if so add the sign styling to the page
+		// check if data is fetched, if so add the sign styling to the page
 		const tempStyles = this.state.temp ? `${style.temperature} ${style.filled}` : style.temperature;
 		const feelStyles = this.state.feel ? `${style.filled1} ${style.right1} ${style.filled2}` : style.right1;
 		const temp1Styles = this.state.tmp1 ? `${style.temp1} ${style.filled2}` : style.temp1;
@@ -201,6 +167,7 @@ export default class Iphone extends Component {
 		const htemp5Styles = this.state.hrtemp5 ? `${style.htemp5} ${style.filled2}` : style.htemp5;
 		const htemp6Styles = this.state.hrtemp6 ? `${style.htemp6} ${style.filled2}` : style.htemp6;
 
+		// adds images for the current weather
 		var ic = "https://icons.wxug.com/i/c/k/" + this.state.icon1 + ".gif";
 		var ic1 = "https://icons.wxug.com/i/c/k/" + this.state.icA1 + ".gif";
 		var ic2 = "https://icons.wxug.com/i/c/k/" + this.state.icA2 + ".gif";
@@ -218,6 +185,7 @@ export default class Iphone extends Component {
 
 		console.log("VAR: " + this.state.locationChooserVisible);
 		// display all weather data
+		// if a location has been entered in locationChooserVisible then the weather data will print, if not then the search bar appears
 		return (
 			<div class={ style.container }>
 			{ !(this.state.locationChooserVisible) ?
@@ -271,14 +239,10 @@ export default class Iphone extends Component {
 					<div class={ style.hline2 }></div>
 
 					<div>
-
-
 						<button class={ style['btn-add-location'] } onclick={this.onAddLocation.bind(this)}>
 							<img src="https://png.icons8.com/ios/50/000000/plus.png" />
 						</button>
-
-						</div>
-
+					</div>
 
 				</div>
 				<div class={ style.details }></div>
@@ -294,27 +258,20 @@ export default class Iphone extends Component {
 					{ this.state.display2 ?
 						<HourlyButton class={ style_iphone3.HourlyButton} clickFunction={ () => this.updateWeather('hourly') }/> : null }
 				</div>
-				<div class={ style_iphone2.container2 }>
-					{ this.state.display3 ?
-						<SearchButton class={ style_iphone2.SearchButton} clickFunction={ this.fetchSearch }/> : null }
 				</div>
+				:
+				<div>
+				<form onsubmit={this.onSearch.bind(this)}>
+					<input id="searchInput" type="text" size="50" value={this.state.selectedCity} placeholder="Search City" required></input>
+					<button onclick>Search</button>
+				</form>
 				</div>
-:
-
-<div>
-<form onsubmit={this.onSearch.bind(this)}>
-	<input id="searchInput" type="text" size="50" value={this.state.selectedCity} placeholder="Search City" required></input>
-	<button onclick="updateWeatherLocation()">Search</button>
-</form>
-
-</div>
- }
+ 			}
 			</div>
 		);
 	}
 
 	parseResponseConditions = (parsed_json) => {
-
 		var location = parsed_json['current_observation']['display_location']['city'];
 		var temp_c = parsed_json['current_observation']['temp_c'];
 		var conditions = parsed_json['current_observation']['weather'];
@@ -376,7 +333,6 @@ export default class Iphone extends Component {
 		}
 
 	parseResponseHourly = (parsed_json2) => {
-
 		var hour1 = parsed_json2['hourly_forecast'][0]['FCTTIME']['hour'];
 		var htemp1 = parsed_json2['hourly_forecast'][0]['temp'].metric;
 		var iconB1 = parsed_json2['hourly_forecast'][0]['icon'];
@@ -417,10 +373,4 @@ export default class Iphone extends Component {
 			 icB6 : iconB6,
 		});
 	}
-
-	parseResponseSearch = (parsed_json3) => {
-
-		this.setState({});
-	}
-
 }
