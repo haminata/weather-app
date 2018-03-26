@@ -12,12 +12,8 @@ import $ from 'jquery';
 import Button from '../button';
 import WeeklyButton from '../WeeklyButton';
 import HourlyButton from '../HourlyButton';
-import _ from 'lodash';
+import _ from 'lodash'; //javascript library used on npm
 import LocationChooser from "../LocationChooser";
-
-var DUMMY_WEEKLY_PATH = './assets/dummy_data/weekly.json'
-var DUMMY_HOURLY_PATH = './assets/dummy_data/hourly.json'
-var USE_DUMMY_DATA = false
 
 export default class Iphone extends Component {
 
@@ -31,9 +27,11 @@ export default class Iphone extends Component {
 		this.state.apiKey = '9436449a823b2d05';
 		this.state.locationChooserVisible = false;
 		// button display state
-		this.setState({display: true})
+		this.setState({display: true});
 	}
 
+
+// fetch data in asynchronous way - gets all the information at one time
 	fetchJson(url) {
 		console.log('[fetchJson] url=' + url)
 		return new Promise((resolve, reject) => {
@@ -42,10 +40,11 @@ export default class Iphone extends Component {
 				dataType: "jsonp",
 				success: resolve,
 				error: reject
-			})
-		})
+			});
+		});
 	}
 
+	// urls for every data type that we need ie. weekly, hourly
 	get urls(){
 		return {
 			hourly: `http://api.wunderground.com/api/${this.state.apiKey}/hourly/q/UK/${this.state.selectedCity}.json`,
@@ -54,32 +53,24 @@ export default class Iphone extends Component {
 		}
 	}
 
+	// updates and displays the weather
 	componentDidMount() {
 		let fetchPromise
-		if(USE_DUMMY_DATA){
-			fetchPromise = Promise.all([this.fetchJson(DUMMY_HOURLY_PATH), this.fetchJson(DUMMY_WEEKLY_PATH)])
-				.then(([hourlyData, weeklyData]) => {
-					this.setState({data: {weekly: weeklyData, hourly: hourlyData}})
-
-					console.log('data fetched:', this.state)
-				})
-				.catch((error)=>{
-					console.log('error loading dummy data', error)
-				})
-		}else{
 			fetchPromise = Promise.resolve()
-		}
 		fetchPromise.then(() => {
 				this.updateWeatherAll()
 			})
 	}
 
+
+	// fetches the updated data for the components
 	updateWeatherAll(){
 		for(let readingType of Object.getOwnPropertyNames(this.urls)){
-			this.updateWeather(readingType)
+			this.updateWeather(readingType);
 		}
 	}
 
+	// updates the weather from the urls-called above
 	updateWeather(readingType){
 		let url = this.urls[readingType]
 
@@ -103,6 +94,8 @@ export default class Iphone extends Component {
 				throw 'Invalid weather reading ' + readingType
 		}
 
+		// lodash function - if there is more than result(two Manchesters), then it is input as an array and first one is selected
+		// slice - put in new url before q
 		return this.fetchJson(url)
 			.then(response => {
 				if (_.isArray(response.response.results)) {
@@ -183,9 +176,8 @@ export default class Iphone extends Component {
 		var ic05 = "https://icons.wxug.com/i/c/k/" + this.state.icB5 + ".gif";
 		var ic06 = "https://icons.wxug.com/i/c/k/" + this.state.icB6 + ".gif";
 
-		console.log("VAR: " + this.state.locationChooserVisible);
 		// display all weather data
-		// if a location has been entered in locationChooserVisible then the weather data will print, if not then the search bar appears
+		// if search bar is not visible then the weather data for the location will, else the search bar will appear
 		return (
 			<div class={ style.container }>
 			{ !(this.state.locationChooserVisible) ?
